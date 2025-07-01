@@ -1,5 +1,5 @@
 {
-  "name": "microservices",
+  "name": "realworld-nestjs-microservices",
   "private": true,
   "scripts": {
     "build": "turbo run build",
