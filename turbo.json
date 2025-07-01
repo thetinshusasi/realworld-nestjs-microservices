@@ -16,6 +16,11 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "start:dev": {
+      "dependsOn": ["^dev"],
+      "cache": false,
+      "persistent": true
     }
   }
 }
