@@ -1,0 +1,109 @@
+version: "3.8"
+
+services:
+  # Redis - shared by all microservices
+  redis:
+    image: redis:7-alpine
+    container_name: realworld-redis-local
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_local:/data
+    command: redis-server --appendonly yes
+    networks:
+      - realworld-db-network
+    restart: unless-stopped
+
+  # Redis Insight - GUI for Redis
+  redis-insight:
+    image: redis/redisinsight:2.68.0
+    container_name: realworld-redis-insight-local
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis_insight_local:/db
+    environment:
+      - REDIS_INSIGHT_PORT=8001
+      - REDIS_INSIGHT_HOST=0.0.0.0
+    networks:
+      - realworld-db-network
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  # PostgreSQL databases - separate for each microservice
+  postgres-api-gateway:
+    image: postgres:15-alpine
+    container_name: realworld-postgres-api-gateway-local
+    environment:
+      POSTGRES_DB: api_gateway_local
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_api_gateway_local:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - realworld-db-network
+    restart: unless-stopped
+
+  postgres-orders:
+    image: postgres:15-alpine
+    container_name: realworld-postgres-orders-local
+    environment:
+      POSTGRES_DB: orders_local
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_orders_local:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - realworld-db-network
+    restart: unless-stopped
+
+  postgres-products:
+    image: postgres:15-alpine
+    container_name: realworld-postgres-products-local
+    environment:
+      POSTGRES_DB: products_local
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_products_local:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - realworld-db-network
+    restart: unless-stopped
+
+  postgres-users:
+    image: postgres:15-alpine
+    container_name: realworld-postgres-users-local
+    environment:
+      POSTGRES_DB: users_local
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_users_local:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - realworld-db-network
+    restart: unless-stopped
+
+volumes:
+  redis_data_local:
+  redis_insight_local:
+  postgres_api_gateway_local:
+  postgres_orders_local:
+  postgres_products_local:
+  postgres_users_local:
+
+networks:
+  realworld-db-network:
+    driver: bridge
