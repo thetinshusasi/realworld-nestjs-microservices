@@ -14,4 +14,9 @@ export class OrdersController {
     console.log('api-gateway createOrder 1');
     return this.orderServiceClient.send('create_order', order);
   }
+  @Post('createOrderSync')
+  createOrderSync(@Body() order: any) {
+    console.log('api-gateway createOrder 2');
+    return this.orderServiceClient.send('create_order_sync', order);
+  }
 }
